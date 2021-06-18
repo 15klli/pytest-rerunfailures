@@ -550,3 +550,12 @@ def test_reruns_with_condition_marker(testdir, condition, expected_reruns):
 
     result = testdir.runpytest()
     assert_outcomes(result, passed=0, failed=1, rerun=expected_reruns)
+
+
+retryBool = False
+@pytest.mark.flaky(condition="retryBool", reruns=2)
+def test_str_condition():
+    global retryBool
+    retryBool = True
+    assert False
+

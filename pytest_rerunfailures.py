@@ -4,6 +4,7 @@ import warnings
 
 import pkg_resources
 import pytest
+from _pytest import skipping
 from _pytest.runner import runtestprotocol
 
 HAS_RESULTLOG = False
@@ -184,7 +185,7 @@ def get_reruns_condition(item):
 
     condition = True
     if rerun_marker is not None and "condition" in rerun_marker.kwargs:
-        condition = rerun_marker.kwargs["condition"]
+        condition = skipping.evaluate_condition(item, rerun_marker, rerun_marker.kwargs["condition"])[0]
 
     return condition
 

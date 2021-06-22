@@ -5,7 +5,6 @@ from unittest import mock
 import pkg_resources
 import pytest
 
-
 pytest_plugins = "pytester"
 
 PYTEST_GTE_61 = pkg_resources.parse_version(
@@ -529,11 +528,7 @@ def test_only_rerun_flag(testdir, only_rerun_texts, should_rerun):
         (False, 0),
         (1, 2),
         (0, 0),
-        ("'non-empty'", 2),
-        ("''", 0),
-        (["list"], 2),
         ([], 0),
-        ({"dict": 1}, 2),
         ({}, 0),
         (None, 0),
     ],
@@ -542,7 +537,7 @@ def test_reruns_with_condition_marker(testdir, condition, expected_reruns):
     testdir.makepyfile(
         f"""
         import pytest
-
+        non_empty = {condition}
         @pytest.mark.flaky(reruns=2, condition={condition})
         def test_fail_two():
             assert False"""
@@ -550,12 +545,3 @@ def test_reruns_with_condition_marker(testdir, condition, expected_reruns):
 
     result = testdir.runpytest()
     assert_outcomes(result, passed=0, failed=1, rerun=expected_reruns)
-
-
-retryBool = False
-@pytest.mark.flaky(condition="retryBool", reruns=2)
-def test_str_condition():
-    global retryBool
-    retryBool = True
-    assert False
-

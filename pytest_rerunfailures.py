@@ -58,8 +58,8 @@ def pytest_addoption(parser):
         type=str,
         default=None,
         help="If passed, only rerun errors matching the regex provided. "
-        "Pass this flag multiple times to accumulate a list of regexes "
-        "to match",
+             "Pass this flag multiple times to accumulate a list of regexes "
+             "to match",
     )
     group._addoption(
         "--reruns",
@@ -198,15 +198,8 @@ def get_reruns_condition(item):
 def evaluate_condition(item, mark, condition: object) -> bool:
     """
     copy from python3.8 _pytest.skipping.py
-
-    Evaluate a single skipif/xfail condition.
-
-    If an old-style string condition is given, it is eval()'d, otherwise the
-    condition is bool()'d. If this fails, an appropriately formatted pytest.fail
-    is raised.
-
-    Returns (result, reason). The reason is only relevant if the result is True.
     """
+    result = False
     # String condition.
     if isinstance(condition, str):
         globals_ = {
@@ -338,7 +331,12 @@ def pytest_runtest_protocol(item, nextitem):
 
         for report in reports:  # 3 reports: setup, call, teardown
             report.rerun = item.execution_count - 1
-            if _should_not_rerun(item, report, reruns):
+            should_not_rerun = True
+            try:
+                should_not_rerun = _should_not_rerun(item, report, reruns)
+            except Exception as e:
+                raise e
+            if should_not_rerun:
                 # last run or no failure detected, log normally
                 item.ihook.pytest_runtest_logreport(report=report)
             else:
